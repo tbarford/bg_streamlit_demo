@@ -17,34 +17,27 @@ def main():
     ## Sidebar
     with st.sidebar:
         st.subheader('Shaft Selection Tools:')
-        shaftType = st.selectbox('Type of shaft:', options = ['Irons', 'Hybrids', 'Woods'], key = 'type')
+        shaftType = st.selectbox('Type of shaft:', options = ['iron', 'wood'], key = 'type')
         shaft = st.selectbox('Choose a shaft to display:', options = firestore.getShaftList(shaftType), key = 'shaft')
-        stiffness = st.selectbox('Choose a stiffness:', options = firestore.getStiffness(shaftType, shaft), key = 'type2')
+        stiffness = st.selectbox('Choose a stiffness:', options = firestore.getStiffness(shaftType, shaft), key = 'stiff')
         compare = st.radio('Compare another shaft?', options = ['No', 'Yes'])
         if compare == 'Yes':
-            shaftType_compare = st.selectbox('Type of shaft:', options = ['Irons', 'Hybrids', 'Woods'], key = 'type2')
+            shaftType_compare = st.selectbox('Type of shaft:', options = ['iron', 'wood'], key = 'type2')
             shaft_compare = st.selectbox('Choose a shaft to display:', options = firestore.getShaftList(shaftType_compare), key = 'shaft2')
             stiffness_compare = st.selectbox('Choose a stiffness:', options = firestore.getStiffness(shaftType_compare, shaft_compare), key = 'stiff2')
         else:
             shaftType_compare, shaft_compare, stiffness_compare = None, None, None
             
 
-
-    
-        
-        
-    
     ## Main Content
     st.image(img.Image.open('./assets/bg_logo_horz.png'), width = 500)
     st.header('EI Demo')
-    
 
     if st.button('Update Plot'):
         if stiffness is not None:
             dataToPlot = {f'{shaft} {stiffness}':firestore.getEI(shaftType, shaft, stiffness)}
         if stiffness_compare is not None:
             dataToPlot[f'{shaft_compare} {stiffness_compare}'] = firestore.getEI(shaftType_compare, shaft_compare, stiffness_compare)
-            
 
         fig, ax = plt.subplots()
         for each in dataToPlot.keys():
