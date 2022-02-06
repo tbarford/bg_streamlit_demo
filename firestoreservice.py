@@ -7,11 +7,14 @@
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+import streamlit as st
+import json
 
 class FirestoreService(): 
     def __init__(self):
         #instantiate firebase
-        _credential = credentials.Certificate('../barford-golf-firebase-adminsdk-spu44-3b8446b75d.json') 
+        credentialJson = json.loads(st.secrets["textkey"])
+        _credential = credentials.Certificate(credentialJson) 
         try:
             _root = firebase_admin.get_app()
         except ValueError:
