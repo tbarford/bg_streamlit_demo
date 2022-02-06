@@ -31,7 +31,7 @@ def main():
 
     ## Main Content
     st.image(img.Image.open('./assets/bg_logo_horz.png'), use_column_width=True)
-    st.header('EI Demo')
+    st.header('Shaft Profile Demo')
 
     if st.button('Update Plot'):
         if stiffness is not None:
