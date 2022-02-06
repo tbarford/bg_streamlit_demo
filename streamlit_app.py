@@ -30,7 +30,7 @@ def main():
             
 
     ## Main Content
-    st.image(img.Image.open('./assets/bg_logo_horz.png'), width = 500)
+    st.image(img.Image.open('./assets/bg_logo_horz.png'), width = st.use_container_width)
     st.header('EI Demo')
 
     if st.button('Update Plot'):
