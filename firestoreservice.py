@@ -8,6 +8,45 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+class FirestoreService(): 
+    def __init__(self):
+        #instantiate firebase
+        _credential = credentials.Certificate('../barford-golf-firebase-adminsdk-spu44-3b8446b75d.json') 
+        try:
+            _root = firebase_admin.get_app()
+        except ValueError:
+            _root = firebase_admin.initialize_app(_credential)
+        self.db = firestore.client()
+    
+    ## Read Operations
+    def getShaftList(self, shaftType: str):
+        collectionList = self.db.collection('eiDb').document(shaftType).collections()
+        shaftList = [shaft.id for shaft in collectionList]
+        return shaftList
+
+    def getStiffness(self, shaftType: str, shaft:str):
+        docRef = self.db.collection('eiDb').document(shaftType).collection(shaft).stream()
+        stiffness = [doc.id for doc in docRef]
+        return stiffness
+
+        
+    def getEI(self, shaftType: str, shaft: str, stiffness: str):
+        docRef = self.db.collection('eiDb').document(shaftType).collection(shaft).document(stiffness)
+        eiDict = docRef.get().to_dict()
+        lengths = [int(key) for key in eiDict.keys()]
+        lengths.sort()
+        ei = [eiDict[str(length)] for length in lengths]
+        return (lengths, ei)
+
+    def readToolMeasure(self):
+        collectionRef = self.db.collection('eiDb').document('Shaft').collection('fq_measure_1')
+        docList = [doc.to_dict() for doc in collectionRef.get()]
+        return  docList
+
+         
+
+
+
 ## Write Operations ##
 
 def writeToDb(db, docRef, dictToWrite: dict):
@@ -46,15 +85,9 @@ def deleteFromDb(db):
         print(e) 
         
 def main():
-    #instantiate firebase
-    credential = credentials.Certificate('./barford-golf-firebase-adminsdk-spu44-3b8446b75d.json') #this has to get updated when you get the info from firebase web
-    root = firebase_admin.initialize_app(credential)
-    db = firestore.client()
-
-    docRef = db.collection(u'eiDb').document('Shaft').collection(u'fq_measure_1').document(u'6')
-
-    readFromDb(db, docRef)
-
+    db = FirestoreService()
+    print(db.getEI('Irons', 'Dynamic Gold', 'X100'))
+    
 
 
 

@@ -3,13 +3,58 @@
 ##
 ##
 ##File Description: This is the streamlit webapp MVP for BG Golf EI Profile Database Demo
+## run in term w/ : streamlit run streamlit_app.py
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~## 
 
 import streamlit as st
+import firestoreservice as fs
+from matplotlib import pyplot as plt
+import PIL as img
 
 def main():
-    st.header('Hello 🌎!')
-    if st.button('Balloons?'):
-        st.balloons()
+    firestore = fs.FirestoreService()
+
+    ## Sidebar
+    with st.sidebar:
+        st.subheader('Shaft Selection Tools:')
+        shaftType = st.selectbox('Type of shaft:', options = ['Irons', 'Hybrids', 'Woods'], key = 'type')
+        shaft = st.selectbox('Choose a shaft to display:', options = firestore.getShaftList(shaftType), key = 'shaft')
+        stiffness = st.selectbox('Choose a stiffness:', options = firestore.getStiffness(shaftType, shaft), key = 'type2')
+        compare = st.radio('Compare another shaft?', options = ['No', 'Yes'])
+        if compare == 'Yes':
+            shaftType_compare = st.selectbox('Type of shaft:', options = ['Irons', 'Hybrids', 'Woods'], key = 'type2')
+            shaft_compare = st.selectbox('Choose a shaft to display:', options = firestore.getShaftList(shaftType_compare), key = 'shaft2')
+            stiffness_compare = st.selectbox('Choose a stiffness:', options = firestore.getStiffness(shaftType_compare, shaft_compare), key = 'stiff2')
+        else:
+            shaftType_compare, shaft_compare, stiffness_compare = None, None, None
+            
+
+
+    
+        
+        
+    
+    ## Main Content
+    st.image(img.Image.open('./assets/bg_logo_horz.png'), width = 500)
+    st.header('EI Demo')
+    
+
+    if st.button('Update Plot'):
+        if stiffness is not None:
+            dataToPlot = {f'{shaft} {stiffness}':firestore.getEI(shaftType, shaft, stiffness)}
+        if stiffness_compare is not None:
+            dataToPlot[f'{shaft_compare} {stiffness_compare}'] = firestore.getEI(shaftType_compare, shaft_compare, stiffness_compare)
+            
+
+        fig, ax = plt.subplots()
+        for each in dataToPlot.keys():
+            ax.plot(dataToPlot[each][0], dataToPlot[each][1], label = each)
+        
+        ax.set(xlabel='Length From Tip (in.)', ylabel='EI',
+        title='BG Measured EI Curve')
+        ax.grid()
+        ax.legend()
+        st.pyplot(fig)
+
 if __name__ == '__main__':
     main()
