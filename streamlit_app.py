@@ -33,12 +33,15 @@ def main():
     st.image(img.Image.open('./assets/bg_logo_horz.png'), use_column_width=True)
     st.header('Shaft Profile Demo')
 
-    if st.button('Update Plot'):
-        if stiffness is not None:
-            dataToPlot = {f'{shaft} {stiffness}':firestore.getEI(shaftType, shaft, stiffness)}
-        if stiffness_compare is not None:
-            dataToPlot[f'{shaft_compare} {stiffness_compare}'] = firestore.getEI(shaftType_compare, shaft_compare, stiffness_compare)
+    #manage shafts to plot
+    if stiffness is not None:
+        dataToPlot = {f'{shaft} {stiffness}':firestore.getEI(shaftType, shaft, stiffness)}
+    if stiffness_compare is not None:
+        dataToPlot[f'{shaft_compare} {stiffness_compare}'] = firestore.getEI(shaftType_compare, shaft_compare, stiffness_compare)
 
+
+    if st.button('Update Plot'):
+        
         fig, ax = plt.subplots()
         for each in dataToPlot.keys():
             ax.plot(dataToPlot[each][0], dataToPlot[each][1], label = each)

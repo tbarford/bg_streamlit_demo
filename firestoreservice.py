@@ -9,6 +9,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import streamlit as st
 import json
+#import asyncio as io
+#import concurrent
 
 class FirestoreService(): 
     def __init__(self):
@@ -19,12 +21,13 @@ class FirestoreService():
             _root = firebase_admin.get_app()
         except ValueError:
             _root = firebase_admin.initialize_app(_credential)
-        self.db = firestore.client()
-    
+        self.db=firestore.client()
+        #self.db = firestore.AsyncClient(credentials=_root.credential.get_credential(), project=_root.project_id)
+
     ## Read Operations
     def getShaftList(self, shaftType: str):
-        collectionList = self.db.collection('demo_db').document(shaftType).collections()
-        shaftList = [shaft.id for shaft in collectionList]
+        docRef = self.db.collection('demo_db').document(shaftType).collections()
+        shaftList = [shaft.id for shaft in docRef]
         return shaftList
 
     def getStiffness(self, shaftType: str, shaft:str):
@@ -41,6 +44,8 @@ class FirestoreService():
         docRef = self.db.collection('demo_db').document(shaftType).collection(shaft).document(stiffness)
         fqDict = docRef.get().to_dict()
         return (fqDict['lengths'], fqDict['measuredFq'])
+
+    
 
 
 ## Write Operations ##
@@ -82,13 +87,11 @@ def deleteFromDb(db):
         
 def main():
     db = FirestoreService()
-    print(db.getEI('Irons', 'Dynamic Gold', 'X100'))
+    #wdict = db.efficientGet('wood').to_dict()
+    idict = db.getShaftList('iron')
+    print(idict)
     
-
-
-
-    
-
 
 if __name__ == '__main__':
     main()
+    
